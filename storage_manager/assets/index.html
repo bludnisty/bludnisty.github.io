@@ -21,7 +21,15 @@ main .row:nth-child(odd) {
     background-color: rgb(236, 236, 236);
 }
 
+main .row:hover {
+    background-color: rgb(70, 70, 70);
+    color: white;
+}
+
 header {
+    position: sticky;
+    top: 0;
+    z-index: 999;
     font-weight: bold;
     font-size: 1.25rem;
     height: 50px;
@@ -44,11 +52,10 @@ header {
     text-overflow: ellipsis;
     cursor: help;
 }
-.tags { width: 60%; }
-.category { width: 12%; }
-.nsfw {
+.tags { width: 68%; }
+.checkbox {
     display: flex;
-    width: 8%;
+    width: 4%;
     justify-content: center;
 }
 
@@ -99,8 +106,9 @@ input[type="checkbox"] {
                 <div class="cell preview">Preview</div>
                 <div class="cell filename">Filename</div>
                 <div class="cell tags">Tags</div>
-                <div class="cell category">Category</div>
-                <div class="cell nsfw">Mark NSFW</div>
+                <div class="cell checkbox nsfw">NSFW</div>
+                <div class="cell checkbox racist">Racist</div>
+                <div class="cell checkbox gore">Gore</div>
             </header>
             <main>
                 {{not_in_storage}}
@@ -113,8 +121,9 @@ input[type="checkbox"] {
                 <div class="cell preview">Preview</div>
                 <div class="cell filename">Filename</div>
                 <div class="cell tags">Tags</div>
-                <div class="cell category">Category</div>
-                <div class="cell nsfw">Mark NSFW</div>
+                <div class="cell checkbox nsfw">NSFW</div>
+                <div class="cell checkbox racist">Racist</div>
+                <div class="cell checkbox gore">Gore</div>
             </header>
             <main>
                 {{in_storage}}
@@ -139,8 +148,19 @@ imgs.forEach((img) => {
         document.body.appendChild(big)
     })
     img.addEventListener("mousemove", (e) => {
-        big.style.left = `${e.clientX + 20}px`
-        big.style.top = `${e.clientY}px`
+        let height = parseFloat(window.getComputedStyle(big).getPropertyValue("height").slice(0, -2))
+
+        let left = `${e.clientX + 20}px`
+        let top = 0
+
+        if (e.clientY + height > window.innerHeight) {
+            top = `${e.clientY - height}px`
+        }
+        else {
+            top = `${e.clientY}px`
+        }
+        big.style.left = left
+        big.style.top = top
     })
     img.addEventListener("mouseleave", () => {
         big.remove()

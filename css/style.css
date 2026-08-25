@@ -102,6 +102,11 @@ body {
     border-color: var(--clr-accent);
 }
 
+#buttons {
+    display: flex;
+    gap: 50px;
+}
+
 #button-container {
     display: flex;
     align-items: center;
@@ -156,7 +161,7 @@ input:checked+.slider:before {
     background-color: #fff;
 }
 
-.nsfw-label {
+.switch-label {
     font-weight: 600;
     color: var(--clr-text);
     opacity: 0.8;

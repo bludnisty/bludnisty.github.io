@@ -1,7 +1,9 @@
 <div class="row">
     <div class="cell preview"><img src="{{filename}}" /></div>
     <div class="cell filename" title="{{filename}}">{{filename}}</div>
-    <div class="cell tags"><input name="{{filename}}" class="tags" type="text" value="{{tags}}" placeholder="none" /></div>
-    <div class="cell category"><input name="{{filename}}" class="category" type="text" value="{{category}}" placeholder="uncategorized"/></div>
-    <div class="cell nsfw"><input name="{{filename}}" class="nsfw" type="checkbox" {{nsfw}}></div>
+    <div class="cell tags"><input name="{{filename}}[tags]" class="tags" type="text" value="{{tags}}" placeholder="none" /></div>
+
+    <div class="cell checkbox nsfw"><input name="{{filename}}[nsfw]" class="nsfw" type="checkbox" {{nsfw}}></div>
+    <div class="cell checkbox racist"><input name="{{filename}}[racist]" class="racist" type="checkbox" {{racist}}></div>
+    <div class="cell checkbox gore"><input name="{{filename}}[gore]" class="gore" type="checkbox" {{gore}}></div>
 </div>

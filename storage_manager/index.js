@@ -28,11 +28,12 @@ app.get('/', (req, res) => {
     let in_storage_rows = ""
     current_storage.forEach((gif) => {
         let row = fs.readFileSync("storage_manager/assets/gif_row.html").toString()
-        
+
         row = row.replaceAll("{{filename}}", gif.filename)
         row = row.replace("{{tags}}", gif.tags)
-        row = row.replace("{{category}}", gif.category)
         row = row.replace("{{nsfw}}", gif.nsfw ? "checked" : "")
+        row = row.replace("{{racist}}", gif.racist ? "checked" : "")
+        row = row.replace("{{gore}}", gif.gore ? "checked" : "")
 
         in_storage_rows += row
         files_in_storage.push(gif.filename)
@@ -45,8 +46,9 @@ app.get('/', (req, res) => {
 
         row = row.replaceAll("{{filename}}", file)
         row = row.replace("{{tags}}", "")
-        row = row.replace("{{category}}", "")
         row = row.replace("{{nsfw}}", "")
+        row = row.replace("{{racist}}", "")
+        row = row.replace("{{gore}}", "")
 
         not_in_storage_rows += row
     })
@@ -62,23 +64,16 @@ app.get('/', (req, res) => {
 
 app.post("/save_storage", (req, res) => {
     let data = req.body
-    /*
-        data is an array of items of the following structure:
-        filename: [
-            0: tags
-            1: category
-            2: nsfw flag (TRUE if this field is defined and has value "on", FALSE if value is undefined)
-        ]
-    */
 
     let files = []
     Object.keys(data).forEach(filename => {
         values = data[filename]
         let file = {
             filename: filename,
-            tags: values[0],
-            category: values[1],
-            nsfw: values[2] != undefined ? true : false
+            tags: values.tags,
+            nsfw: values.nsfw == undefined ? false : true,
+            racist: values.racist == undefined ? false : true,
+            gore: values.gore == undefined ? false : true
         }
         files.push(file)
     })
@@ -94,8 +89,26 @@ app.post("/save_storage", (req, res) => {
     files_json = JSON.stringify(files)
     fs.writeFileSync(DIR_STORAGE, STORAGE_PREFIX + files_json + STORAGE_SUFFIX)
 
-    // res.send("zapisano (mam nadzieje)")
     res.redirect("\\")
 })
+
+// app.get("/format", (req, res) => {
+//     let current_storage = fs.readFileSync(DIR_STORAGE).toString().slice(STORAGE_PREFIX.length, -STORAGE_SUFFIX.length)
+//     current_storage = JSON.parse(current_storage)
+    
+//     let new_storage = []
+//     current_storage.forEach((gif) => {
+//         new_storage.push({
+//             filename: gif.filename,
+//             tags: gif.tags,
+//             nsfw: gif.nsfw,
+//             racist: false,
+//             gore: false
+//         })
+//     })
+
+//     new_storage = JSON.stringify(new_storage)
+//     fs.writeFileSync(DIR_STORAGE, STORAGE_PREFIX + new_storage + STORAGE_SUFFIX)
+// })
 
 app.listen(port, () => console.log(`App listening on port ${port}`))

@@ -1,7 +1,11 @@
 /* DOM elements */
 const tooltip = document.querySelector("#tooltip")
 const input_search = document.querySelector("#input-search")
+
 const input_nsfw = document.querySelector("#input-nsfw")
+const input_racist = document.querySelector("#input-racist")
+const input_gore = document.querySelector("#input-gore")
+
 const theme_button = document.querySelector("#theme-button")
 const gif_container = document.querySelector("#gifs")
 
@@ -12,10 +16,10 @@ const theme_icons = {
     light: `<path d="M565-395q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35Zm-226.5 56.5Q280-397 280-480t58.5-141.5Q397-680 480-680t141.5 58.5Q680-563 680-480t-58.5 141.5Q563-280 480-280t-141.5-58.5ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Zm326-268Z"/>`
 }
 
-search_gifs("", handle_nsfw())
+search_gifs("", handle_flags())
 handle_theme()
 
-async function search_gifs(query = "", nsfw = false) {
+async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore: false}) {
     gif_container.innerHTML = ""
     
     // getting gifs
@@ -60,7 +64,11 @@ async function search_gifs(query = "", nsfw = false) {
 
     // displaying results
     filtered_gifs.forEach(gif => {
-        if (gif.nsfw == true && nsfw == false)
+        if (
+            (gif.nsfw == true && flags.nsfw == false) ||
+            (gif.racist == true && flags.racist == false) ||
+            (gif.gore == true && flags.gore == false)
+        )
             return
 
         let element = document.createElement("img")
@@ -158,25 +166,57 @@ function handle_theme(toggle = false) {
     theme_button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="32px" width="32px" viewBox="0 -960 960 960">${theme_icons[theme]}</svg>`
 }
 
-function handle_nsfw() {
-    if (localStorage.getItem("nsfw") == null) {
-        localStorage.setItem("nsfw", false)
-        input_nsfw.checked = false
+/**
+ * Get all flag values
+ * @returns Object with boolean flag values
+ */
+function handle_flags() {
+    return {
+        nsfw: handle_flag("nsfw", input_nsfw),
+        racist: handle_flag("racist", input_racist),
+        gore: handle_flag("gore", input_gore)
+    }
+}
+
+/**
+ * Get flag value from local storage and handle checkbox value 
+ * @param {*} name Name of the flag
+ * @param {*} checkbox_element DOM checkbox element corresponding to the flag
+ * @returns Boolean flag value
+ */
+function handle_flag(name, checkbox_element) {
+    if (localStorage.getItem(name) == null) {
+        localStorage.setItem(name, false)
+        checkbox_element.checked = false
         return false
     }
 
-    let nsfw = localStorage.getItem("nsfw") == "true" ? true : false
-    input_nsfw.checked = nsfw
-    return nsfw
+    let value = localStorage.getItem(name) == "true" ? true : false
+    checkbox_element.checked = value
+    return value
 }
 
 /* Event listeners */
-input_search.addEventListener("input", () => search_gifs(input_search.value, handle_nsfw()))
+input_search.addEventListener("input", () => search_gifs(input_search.value, handle_flags()))
+
 input_nsfw.addEventListener("change", (e) => {
     let checked = e.currentTarget.checked
     localStorage.setItem("nsfw", checked)
-    search_gifs(input_search.value, checked)
+    search_gifs(input_search.value, handle_flags())
 })
+
+input_racist.addEventListener("change", (e) => {
+    let checked = e.currentTarget.checked
+    localStorage.setItem("racist", checked)
+    search_gifs(input_search.value, handle_flags())
+})
+
+input_gore.addEventListener("change", (e) => {
+    let checked = e.currentTarget.checked
+    localStorage.setItem("gore", checked)
+    search_gifs(input_search.value, handle_flags())
+})
+
 theme_button.addEventListener("click", () => handle_theme(true))
 
 // auto focus to input
@@ -184,7 +224,7 @@ window.addEventListener("keydown", (e) => {
     if (e.key == "Escape") {
         input_search.value = ""
         input_search.focus()
-        search_gifs("", handle_nsfw())
+        search_gifs("", handle_flags())
     }
 
     if (
