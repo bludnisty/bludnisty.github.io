@@ -34,6 +34,7 @@ app.get('/', (req, res) => {
         row = row.replace("{{nsfw}}", gif.nsfw ? "checked" : "")
         row = row.replace("{{racist}}", gif.racist ? "checked" : "")
         row = row.replace("{{gore}}", gif.gore ? "checked" : "")
+        row = row.replace("{{editable}}", "editable")
 
         in_storage_rows += row
         files_in_storage.push(gif.filename)
@@ -49,6 +50,7 @@ app.get('/', (req, res) => {
         row = row.replace("{{nsfw}}", "")
         row = row.replace("{{racist}}", "")
         row = row.replace("{{gore}}", "")
+        row = row.replace("{{editable}}", "")
 
         not_in_storage_rows += row
     })
@@ -88,6 +90,24 @@ app.post("/save_storage", (req, res) => {
 
     files_json = JSON.stringify(files)
     fs.writeFileSync(DIR_STORAGE, STORAGE_PREFIX + files_json + STORAGE_SUFFIX)
+
+    res.redirect("\\")
+})
+
+app.post("/rename_file", (req, res) => {
+    let old_name = req.body.old_filename
+    let new_name = req.body.new_filename
+
+    if (old_name == new_name) {
+        res.send("to samo gowienko")
+        return
+    }
+
+    let storage = fs.readFileSync(DIR_STORAGE).toString()
+    storage = storage.replaceAll(old_name, new_name)
+
+    fs.renameSync(`${DIR_GIFS}/${old_name}`, `${DIR_GIFS}/${new_name}`)
+    fs.writeFileSync(DIR_STORAGE, storage)
 
     res.redirect("\\")
 })

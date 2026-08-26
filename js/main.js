@@ -34,33 +34,47 @@ async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore
     query = query.trim().toLocaleLowerCase()
     let query_splitted = query.split(" ")
 
-    // score-based searching through gifs
-    let filtered_gifs = data
-        .map(gif => {
-            const tag_string = gif.tags.toLowerCase()
-            const tags = tag_string.split(/\s+/)
-
-            let score = 0
-
-            // Individual word matches
-            for (const word of query_splitted) {
-                if (tags.includes(word)) {
-                    score += 1
-                }
-            }
-
-            // Exact phrase match
-            if (tag_string.includes(query)) {
-                score += 5
-            }
-
-            return {
-                ...gif,
-                score
-            }
+    // sort alphabetically if no query (zeby muche schowac)
+    let filtered_gifs = []
+    if (query == "") {
+        filtered_gifs = data.sort((a, b) => {
+            if (a.filename < b.filename)
+                return -1
+            else if (a.filename > b.filename)
+                return 1
+            else
+                return 0
         })
-        .filter(gif => gif.score > 0)
-        .sort((a, b) => b.score - a.score)
+    }
+    else {
+        // score-based searching through gifs
+        filtered_gifs = data
+            .map(gif => {
+                const tag_string = gif.tags.toLowerCase()
+                const tags = tag_string.split(/\s+/)
+    
+                let score = 0
+    
+                // Individual word matches
+                for (const word of query_splitted) {
+                    if (tags.includes(word)) {
+                        score += 1
+                    }
+                }
+    
+                // Exact phrase match
+                if (tag_string.includes(query)) {
+                    score += 5
+                }
+    
+                return {
+                    ...gif,
+                    score
+                }
+            })
+            .filter(gif => gif.score > 0)
+            .sort((a, b) => b.score - a.score)
+    }
 
     // displaying results
     filtered_gifs.forEach(gif => {
@@ -98,46 +112,6 @@ async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore
 
         gif_container.appendChild(element)
     })
-
-
-
-
-    // data.forEach((gif) => {
-    //     if (gif.nsfw == true && nsfw == false)
-    //         return
-
-    //     let tags = gif.tags.split(" ")
-
-    //     let tag_check = tags.some((tag) => query_splitted.includes(tag))
-
-    //     if (tag_check || gif.tags.includes(query) || query == "") {
-    //         let element = document.createElement("img")
-    //         element.classList.add("gif")
-    //         element.src = `storage/gif/${gif.filename}`
-    //         element.loading = "lazy" // Add native lazy loading for performance
-
-    //         // copy link to clipboard on click
-    //         element.addEventListener("click", async (e) => {
-    //             try {
-    //                 await navigator.clipboard.writeText(element.src);
-
-    //                 // Trigger CSS animation class instead of JS intervals
-    //                 tooltip.style.top = `${e.clientY}px`
-    //                 tooltip.style.left = `${e.clientX}px`
-    //                 tooltip.classList.add("show")
-
-    //                 clearTimeout(tooltipTimeout)
-    //                 tooltipTimeout = setTimeout(() => {
-    //                     tooltip.classList.remove("show")
-    //                 }, 1500)
-    //             } catch (err) {
-    //                 console.error("Failed to copy gif:", err);
-    //             }
-    //         })
-
-    //         gif_container.appendChild(element)
-    //     }
-    // })
 }
 
 function handle_theme(toggle = false) {
