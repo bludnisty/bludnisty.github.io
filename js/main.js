@@ -6,6 +6,13 @@ const input_nsfw = document.querySelector("#input-nsfw")
 const input_racist = document.querySelector("#input-racist")
 const input_gore = document.querySelector("#input-gore")
 
+const count = {
+    results: document.querySelector("#count-results"), 
+    nsfw: document.querySelector("#count-nsfw"),
+    racist: document.querySelector("#count-racist"),
+    gore: document.querySelector("#count-gore"),
+}
+
 const theme_button = document.querySelector("#theme-button")
 const gif_container = document.querySelector("#gifs")
 
@@ -18,6 +25,7 @@ const theme_icons = {
 
 search_gifs("", handle_flags())
 handle_theme()
+get_gif_count()
 
 async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore: false}) {
     gif_container.innerHTML = ""
@@ -77,6 +85,7 @@ async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore
     }
 
     // displaying results
+    let result_count = 0
     filtered_gifs.forEach(gif => {
         if (
             (gif.nsfw == true && flags.nsfw == false) ||
@@ -110,8 +119,11 @@ async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore
             }
         })
 
+        result_count++
         gif_container.appendChild(element)
     })
+
+    count.results.innerHTML = result_count
 }
 
 function handle_theme(toggle = false) {
@@ -168,6 +180,39 @@ function handle_flag(name, checkbox_element) {
     let value = localStorage.getItem(name) == "true" ? true : false
     checkbox_element.checked = value
     return value
+}
+
+function get_gif_count() {
+    let data = [];
+    try {
+        data = JSON.parse(DATA)
+    } catch (e) {
+        console.warn("Could not parse DATA variable.");
+        return null
+    }
+
+    let nsfw = 0, racist = 0, gore = 0
+    data.forEach((gif) => {
+        if (gif.nsfw == true)
+            nsfw++
+        if (gif.racist == true)
+            racist++
+        if (gif.gore == true)
+            gore++
+    })
+
+    input_search.placeholder = `Search through ${data.length} gifs...`
+    // count.total.innerHTML = data.length
+    count.nsfw.innerHTML = nsfw
+    count.racist.innerHTML = racist
+    count.gore.innerHTML = gore
+
+    return {
+        total: data.length,
+        nsfw: nsfw,
+        racist: racist,
+        gore: gore
+    }
 }
 
 /* Event listeners */

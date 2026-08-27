@@ -17,35 +17,52 @@
 
     <div id="top-bar">
         <div id="input-container">
-            <input id="input-search" type="text" placeholder="Search tags or categories...">
+            <input id="input-search" type="text" placeholder="Search tags...">
 
             <div id="buttons">
-                <div id="button-container">
+                <div class="button-container">
                     <label class="toggle-switch">
                         <input id="input-nsfw" type="checkbox">
                         <span class="slider"></span>
                     </label>
-                    <span class="switch-label">NSFW</span>
+                    <span class="switch-label">
+                        NSFW 
+                        <span class="count">
+                            (<span id="count-nsfw">54</span>)
+                        </span>
+                    </span>
                 </div>
 
-                <div id="button-container">
+                <div class="button-container">
                     <label class="toggle-switch">
                         <input id="input-racist" type="checkbox">
                         <span class="slider"></span>
                     </label>
-                    <span class="switch-label">Racist</span>
+                    <span class="switch-label">
+                        Racist
+                        <span class="count">
+                            (<span id="count-racist">32</span>)</span>
+                        </span>
                 </div>
 
-                <div id="button-container">
+                <div class="button-container">
                     <label class="toggle-switch">
                         <input id="input-gore" type="checkbox">
                         <span class="slider"></span>
                     </label>
-                    <span class="switch-label">Gore</span>
+                    <span class="switch-label">
+                        Gore
+                        <span class="count">
+                            (<span id="count-gore">12</span>)
+                        </span>
+                    </span>
                 </div>
+
+                <div class="count"><span id="count-results"></span>&nbsp;Results</div>
             </div>
 
         </div>
+
         <div id="theme-button"></div>
     </div>
 

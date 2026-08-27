@@ -8,6 +8,7 @@
     --shadow: 0px 4px 15px rgba(0, 0, 0, 0.08);
     --clr-focus: rgba(0, 0, 0, 0.05);
     --clr-input: #e8e8e8;
+    --clr-count: rgb(78, 78, 78);
 }
 
 :root[data-theme="dark"] {
@@ -18,6 +19,7 @@
     --shadow: 0px 4px 15px rgba(0, 0, 0, 0.6);
     --clr-focus: rgba(255, 255, 255, 0.08);
     --clr-input: #2a2a2a;
+    --clr-count: gray;
 }
 
 *,
@@ -103,15 +105,28 @@ body {
 }
 
 #buttons {
+    width: 100%;
     display: flex;
     gap: 50px;
+    justify-content: space-between;
+    gap: 0;
 }
 
-#button-container {
+.button-container {
     display: flex;
     align-items: center;
     gap: 12px;
     font-size: 0.95rem;
+    width: max-content;
+}
+
+div.count {
+    display: flex;
+    align-items: center;
+}
+
+.count {
+    color: var(--clr-count);
 }
 
 /* Modern Toggle Switch */
