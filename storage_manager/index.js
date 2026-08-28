@@ -136,6 +136,8 @@ app.post("/delete_file", (req, res) => {
     res.redirect("\\")
 })
 
+app.listen(port, () => console.log(`Storage Manager started. Open: http://localhost:${port}`))
+
 // app.get("/format", (req, res) => {
 //     let current_storage = fs.readFileSync(DIR_STORAGE).toString().slice(STORAGE_PREFIX.length, -STORAGE_SUFFIX.length)
 //     current_storage = JSON.parse(current_storage)
@@ -154,5 +156,3 @@ app.post("/delete_file", (req, res) => {
 //     new_storage = JSON.stringify(new_storage)
 //     fs.writeFileSync(DIR_STORAGE, STORAGE_PREFIX + new_storage + STORAGE_SUFFIX)
 // })
-
-app.listen(port, () => console.log(`App listening on port ${port}`))
