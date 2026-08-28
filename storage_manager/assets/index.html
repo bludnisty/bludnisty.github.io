@@ -117,19 +117,14 @@ input[type="checkbox"] {
 #rename-file-container {
     display: none;
     position: fixed;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-color: rgba(0, 0, 0, 0.527);
 
     z-index: 99999999;
 }
 
 .dialog {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -137,29 +132,73 @@ input[type="checkbox"] {
     width: 100%;
     max-width: 500px;
     padding: 20px;
+
     background-color: white;
 }
 
-.dialog .buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 20px;
+#rename-file-dialog {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
+
+.dialog .buttons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 15px;
+    column-gap: 20px;
+}
+
 
 .dialog button {
     width: 100%
 }
 
 .dialog h1,
-.dialog p {
+.dialog p,
+#delete-file-container h1,
+#delete-file-container p {
     padding: 0;
     margin: 0;
 }
 
-#dialog-filename {
+.dialog-filename {
     font-weight: bold;
     font-size: 1.25rem;
+}
+
+#dialog-delete {
+    grid-column: 2;
+    color: red;
+}
+
+#dialog-confirm-delete {
+    grid-column: 1;
+    color: red;
+}
+
+#dialog-cancel-delete {
+    grid-column: 3;
+}
+
+#delete-file-container {
+    display: none;
+
+    position: fixed;
+    left: 50%;
+    top: 70%;
+    transform: translate(-50%, -50%);
+
+    width: 100%;
+    max-width: 500px;
+
+    z-index: 99999999;
+}
+
+#delete-file-dialog {
+    display: flex;
+    flex-direction: column;
 }
 
 </style>
@@ -175,15 +214,30 @@ input[type="checkbox"] {
 <body>
     <div id="rename-file-container">
         <form action="/rename_file" method="post">
-            <div class="dialog">
+            <div id="rename-file-dialog" class="dialog">
                 <h1>Rename file</h1>
-                <p>Renaming <span id="dialog-filename">cosikten.gif</span></p>
+                <p>Renaming <span class="dialog-filename">cosikten.gif</span></p>
                 <input id="dialog-new-name" name="new_filename" type="text" value="cosikten.gif" placeholder="Enter new filename...">
-                <input id="dialog-old-name" name="old_filename" type="hidden" value="anime-feet.gif">
+                <input class="dialog-old-name" name="old_filename" type="hidden" value="anime-feet.gif">
                 <div class="buttons">
                     <button id="dialog-submit" type="submit">Rename</button>
                     <button id="dialog-reset" type="button">Set original name</button>
                     <button id="dialog-cancel" type="button">Cancel</button>
+                    <button id="dialog-delete" type="button">Delete</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div id="delete-file-container">
+        <form action="/delete_file" method="post">
+            <div id="delete-file-dialog" class="dialog">
+                <h1>Confirm delete</h1>
+                <p>Deleting <span class="dialog-filename">cosikten.gif</span></p>
+                <div class="buttons">
+                    <input class="dialog-old-name" name="filename" type="hidden">
+                    <button id="dialog-confirm-delete" type="submit">Delete</button>
+                    <button id="dialog-cancel-delete" type="button">Cancel</button>
                 </div>
             </div>
         </form>
@@ -236,13 +290,20 @@ const imgs = document.querySelectorAll("img")
 const editable_filenames = document.querySelectorAll(".filename.editable")
 const dialog = {
     container: document.querySelector("#rename-file-container"),
-    filename: document.querySelector("#dialog-filename"),
+    filename: document.querySelectorAll(".dialog-filename"),
+    delete_file: document.querySelector("#delete-file-container"),
+
     new_name: document.querySelector("#dialog-new-name"),
-    old_name: document.querySelector("#dialog-old-name"),
+    old_name: document.querySelectorAll(".dialog-old-name"),
+
     submit: document.querySelector("#dialog-submit"),
     reset: document.querySelector("#dialog-reset"),
     cancel: document.querySelector("#dialog-cancel"),
+    delete: document.querySelector("#dialog-delete"),
+    cancel_delete: document.querySelector("#dialog-cancel-delete"),
+
     shown: false,
+    confirm_delete_shown: false,
 }
 
 imgs.forEach((img) => {
@@ -277,9 +338,13 @@ editable_filenames.forEach((element) => {
     element.addEventListener("click", () => {
         dialog.container.style.display = "flex"
         dialog.shown = true
-        dialog.filename.innerHTML = element.innerHTML
+        dialog.filename.forEach((fn) => {
+            fn.innerHTML = element.innerHTML
+        })
         dialog.new_name.value = element.innerHTML
-        dialog.old_name.value = element.innerHTML
+        dialog.old_name.forEach((on) => {
+            on.value = element.innerHTML
+        })
     })
 })
 
@@ -289,13 +354,27 @@ dialog.reset.addEventListener("click", () => {
 
 dialog.cancel.addEventListener("click", () => {
     dialog.container.style.display = "none"
+    dialog.delete_file.style.display = "none"
     dialog.shown = false
+    dialog.confirm_delete_shown = false
+})
+
+dialog.delete.addEventListener("click", () => {
+    dialog.delete_file.style.display = "block"
+    dialog.confirm_delete_shown = true
+})
+
+dialog.cancel_delete.addEventListener("click", () => {
+    dialog.delete_file.style.display = "none"
+    dialog.confirm_delete_shown = false
 })
 
 window.addEventListener("keydown", (e) => {
     if (e.key == "Escape" && dialog.shown == true) {
-        dialog.container.style = "none"
+        dialog.container.style.display = "none"
+        dialog.delete_file.style.display = "none"
         dialog.shown = false
+        dialog.confirm_delete_shown = false
     }
 })
 

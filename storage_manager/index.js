@@ -34,7 +34,6 @@ app.get('/', (req, res) => {
         row = row.replace("{{nsfw}}", gif.nsfw ? "checked" : "")
         row = row.replace("{{racist}}", gif.racist ? "checked" : "")
         row = row.replace("{{gore}}", gif.gore ? "checked" : "")
-        row = row.replace("{{editable}}", "editable")
 
         in_storage_rows += row
         files_in_storage.push(gif.filename)
@@ -50,7 +49,6 @@ app.get('/', (req, res) => {
         row = row.replace("{{nsfw}}", "")
         row = row.replace("{{racist}}", "")
         row = row.replace("{{gore}}", "")
-        row = row.replace("{{editable}}", "")
 
         not_in_storage_rows += row
     })
@@ -70,6 +68,10 @@ app.post("/save_storage", (req, res) => {
     let files = []
     Object.keys(data).forEach(filename => {
         values = data[filename]
+
+        if (values.tags.trim() == "")
+            return
+
         let file = {
             filename: filename,
             tags: values.tags,
@@ -108,6 +110,26 @@ app.post("/rename_file", (req, res) => {
 
     fs.renameSync(`${DIR_GIFS}/${old_name}`, `${DIR_GIFS}/${new_name}`)
     fs.writeFileSync(DIR_STORAGE, storage)
+
+    res.redirect("\\")
+})
+
+app.post("/delete_file", (req, res) => {
+    let filename = req.body.filename
+    
+    let storage = fs.readFileSync(DIR_STORAGE).toString().slice(STORAGE_PREFIX.length, -STORAGE_SUFFIX.length)
+    storage = JSON.parse(storage)
+
+    let files = []
+    storage.forEach((gif) => {
+        if (gif.filename != filename)
+            files.push(gif)
+    })
+
+    files = JSON.stringify(files)
+
+    fs.writeFileSync(DIR_STORAGE, STORAGE_PREFIX + files + STORAGE_SUFFIX)
+    fs.rmSync(`${DIR_GIFS}/${filename}`)
 
     res.redirect("\\")
 })
