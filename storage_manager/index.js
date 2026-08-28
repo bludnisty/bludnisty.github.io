@@ -55,6 +55,8 @@ app.get('/', (req, res) => {
 
     result = result.replace("{{in_storage}}", in_storage_rows)
     result = result.replace("{{not_in_storage}}", not_in_storage_rows)
+    result = result.replace("{{in_storage_count}}", files_in_storage.length)
+    result = result.replace("{{not_in_storage_count}}", files_not_in_storage.length)
     if (not_in_storage_rows == "")
         result = result.replaceAll("{{hide}}", `style="display: none"`)
 

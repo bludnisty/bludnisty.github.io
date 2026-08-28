@@ -248,7 +248,7 @@ input[type="checkbox"] {
     <form action="/save_storage" method="post">
         <input id="save-changes" type="submit" value="Save changes / add all to storage">
 
-        <h2 {{hide}}>Not added to storage</h2>
+        <h2 {{hide}}>Not added to storage ({{not_in_storage_count}})</h2>
 
         <div id="table" {{hide}}>
             <header class="row">
@@ -264,7 +264,7 @@ input[type="checkbox"] {
             </main>
         </div>
 
-        <h2>In storage</h2>
+        <h2>In storage ({{in_storage_count}})</h2>
         <div id="table">
             <header class="row">
                 <div class="cell preview">Preview</div>
@@ -349,7 +349,7 @@ editable_filenames.forEach((element) => {
 })
 
 dialog.reset.addEventListener("click", () => {
-    dialog.new_name.value = dialog.old_name.value   
+    dialog.new_name.value = dialog.old_name[0].value
 })
 
 dialog.cancel.addEventListener("click", () => {
