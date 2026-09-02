@@ -290,6 +290,7 @@ const imgs = document.querySelectorAll("img")
 const editable_filenames = document.querySelectorAll(".filename.editable")
 const dialog = {
     container: document.querySelector("#rename-file-container"),
+    rename_dialog: document.querySelector("#rename-file-dialog"),
     filename: document.querySelectorAll(".dialog-filename"),
     delete_file: document.querySelector("#delete-file-container"),
 
@@ -362,6 +363,7 @@ dialog.cancel.addEventListener("click", () => {
 dialog.delete.addEventListener("click", () => {
     dialog.delete_file.style.display = "block"
     dialog.confirm_delete_shown = true
+    stick_confirm_delete_to_rename()
 })
 
 dialog.cancel_delete.addEventListener("click", () => {
@@ -377,5 +379,16 @@ window.addEventListener("keydown", (e) => {
         dialog.confirm_delete_shown = false
     }
 })
+
+window.addEventListener("resize", stick_confirm_delete_to_rename)
+
+// makes sure the confirm delete dialog box sticks to the bottom of the rename file dialog box
+function stick_confirm_delete_to_rename() {
+    let style = window.getComputedStyle(dialog.rename_dialog)
+    let top = parseFloat(style.getPropertyValue("top"))
+    let height = parseFloat(style.getPropertyValue("height"))
+
+    dialog.delete_file.style.top = `${top + height}px`
+}
 
 </script>
