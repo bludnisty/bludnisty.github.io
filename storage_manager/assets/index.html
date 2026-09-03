@@ -366,10 +366,10 @@ imgs.forEach((img) => {
         let top = 0
 
         if (e.clientY + height > window.innerHeight) {
-            top = `${e.clientY - height}px`
+            top = `${e.clientY - height - 20}px`
         }
         else {
-            top = `${e.clientY}px`
+            top = `${e.clientY + 20}px`
         }
         big.style.left = left
         big.style.top = top
