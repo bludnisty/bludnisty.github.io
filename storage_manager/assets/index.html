@@ -9,6 +9,7 @@ html, body {
     height: 100%;
     padding: 0;
     margin: 0;
+    scroll-behavior: smooth;
 }
 
 h1, h2 {
@@ -16,17 +17,52 @@ h1, h2 {
     margin: 0;
 }
 
-#save-changes {
+nav {
     position: sticky;
-    top: 50px;
-    left: 20px;
+    top: 0px;
+    height: 30px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+
+    margin-bottom: -20px;
+
+    background-color: white;
     z-index: 1000;
 }
 
-#table {
+nav button {
+    height: 25px;
+    background: none;
+    outline: none;
+    border: none;
+    color: blue;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+nav button::before { content: '['; }
+nav button::after { content: ']' }
+
+h2 {
+    width: fit-content;
+    position: sticky;
+    top: 0px;
+    padding: 0;
+    padding-left: 20px;
+    z-index: 1000;
+}
+
+.table {
     display: flex;
     flex-direction: column;
     width: 100%;
+}
+
+#not-in-storage {
+    margin-bottom: 20px;
 }
 
 .row {
@@ -51,12 +87,13 @@ main .row:hover {
 
 header {
     position: sticky;
-    top: 0;
+    top: 30px;
     z-index: 999;
     font-weight: bold;
     font-size: 1.25rem;
     height: 50px;
     background-color: rgb(128, 128, 128);
+    margin-top: 20px;
 }
 
 header .preview {
@@ -246,11 +283,18 @@ input[type="checkbox"] {
     <h1>Gif Manager Storage Manager</h1>
     
     <form action="/save_storage" method="post">
-        <input id="save-changes" type="submit" value="Save changes / add tagged files storage">
+        <nav>
+            <button id="save-changes" type="submit">Save changes / add tagged files storage</button>
+            <a href="#in-storage">
+                <button type="button">Jump to <b>In storage</b></button>
+            </a>
+            <a href="#not-in-storage" {{hide}}>
+                <button type="button">Jump to <b>Not added to storage</b>
+            </button></a>
+        </nav>
 
-        <h2 {{hide}}>Not added to storage ({{not_in_storage_count}})</h2>
-
-        <div id="table" {{hide}}>
+        <div id="not-in-storage" class="table" {{hide}}>
+            <h2>Not added to storage ({{not_in_storage_count}})</h2>
             <header class="row">
                 <div class="cell preview">Preview</div>
                 <div class="cell filename">Filename</div>
@@ -264,8 +308,8 @@ input[type="checkbox"] {
             </main>
         </div>
 
-        <h2>In storage ({{in_storage_count}})</h2>
-        <div id="table">
+        <div id="in-storage" class="table">
+            <h2>In storage ({{in_storage_count}})</h2>
             <header class="row">
                 <div class="cell preview">Preview</div>
                 <div class="cell filename">Filename</div>
