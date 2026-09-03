@@ -202,7 +202,6 @@ function get_gif_count() {
     })
 
     input_search.placeholder = `Search through ${data.length} gifs...`
-    // count.total.innerHTML = data.length
     count.nsfw.innerHTML = nsfw
     count.racist.innerHTML = racist
     count.gore.innerHTML = gore

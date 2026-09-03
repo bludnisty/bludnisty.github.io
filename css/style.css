@@ -212,7 +212,7 @@ input:checked+.slider:before {
 }
 
 .gif {
-    /* width: 100%; */
+    max-width: 100%;
     height: 220px;
     object-fit: cover;
     border-radius: 12px;
