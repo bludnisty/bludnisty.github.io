@@ -105,11 +105,14 @@ async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore
             try {
                 await navigator.clipboard.writeText(element.src);
 
-                // Trigger CSS animation class instead of JS intervals
-                tooltip.style.top = `${e.clientY}px`
-                tooltip.style.left = `${e.clientX}px`
-                tooltip.classList.add("show")
+                const rect = element.getBoundingClientRect();
+                const left = rect.left + (rect.width / 2) + window.scrollX
+                const top = rect.top + window.scrollY
 
+                tooltip.style.top = `${top}px`
+                tooltip.style.left = `${left}px`
+                tooltip.classList.add("show")
+                
                 clearTimeout(tooltipTimeout)
                 tooltipTimeout = setTimeout(() => {
                     tooltip.classList.remove("show")
