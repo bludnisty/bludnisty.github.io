@@ -3,8 +3,10 @@ const DIR_STORAGE = "storage/storage.js"
 const STORAGE_PREFIX = "const DATA = `"
 const STORAGE_SUFFIX = "`"
 
+const { spawn } = require('child_process')
 const express = require('express')
 const fs = require("fs")
+const path = require('path')
 const app = express()
 const port = 3000
 
@@ -134,6 +136,13 @@ app.post("/delete_file", (req, res) => {
     fs.rmSync(`${DIR_GIFS}/${filename}`)
 
     res.redirect("\\")
+})
+
+app.get("/explorer", (req, res) => {
+    const fn = req.query.fn
+    const dir = path.resolve(DIR_GIFS, fn)
+    spawn('explorer.exe', [`/select,"${dir}"`], {shell: true})
+    res.send("<script>window.close()</script>")
 })
 
 app.listen(port, () => console.log(`Storage Manager started. Open: http://localhost:${port}`))

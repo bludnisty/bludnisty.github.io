@@ -205,8 +205,13 @@ input[type="checkbox"] {
     font-size: 1.25rem;
 }
 
+#dialog-explorer {
+    display: block;
+    grid-column: 1;
+}
+
 #dialog-delete {
-    grid-column: 2;
+    grid-column: 3;
     color: red;
 }
 
@@ -260,6 +265,9 @@ input[type="checkbox"] {
                     <button id="dialog-submit" type="submit">Rename</button>
                     <button id="dialog-reset" type="button">Set original name</button>
                     <button id="dialog-cancel" type="button">Cancel</button>
+                    <a id="dialog-explorer" href="/explorer?" target="_blank">
+                        <button type="button">Show in explorer</button>
+                    </a>
                     <button id="dialog-delete" type="button">Delete</button>
                 </div>
             </div>
@@ -344,6 +352,7 @@ const dialog = {
     submit: document.querySelector("#dialog-submit"),
     reset: document.querySelector("#dialog-reset"),
     cancel: document.querySelector("#dialog-cancel"),
+    explorer: document.querySelector("#dialog-explorer"),
     delete: document.querySelector("#dialog-delete"),
     cancel_delete: document.querySelector("#dialog-cancel-delete"),
 
@@ -390,6 +399,7 @@ editable_filenames.forEach((element) => {
         dialog.old_name.forEach((on) => {
             on.value = element.innerHTML
         })
+        dialog.explorer.href = `/explorer?fn=${element.innerHTML}`
     })
 })
 
