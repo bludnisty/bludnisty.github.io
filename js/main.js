@@ -34,6 +34,11 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function search_gifs(query = "", flags = { nsfw: false, racist: false, gore: false }) {
+    const old_images = gif_container.querySelectorAll("img.gif");
+    old_images.forEach(img => {
+        img.removeAttribute("src");
+    });
+
     gif_container.innerHTML = ""
 
     let data = [];
