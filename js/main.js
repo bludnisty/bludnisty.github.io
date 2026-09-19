@@ -5,10 +5,9 @@ const input_search = document.querySelector("#input-search")
 const input_nsfw = document.querySelector("#input-nsfw")
 const input_racist = document.querySelector("#input-racist")
 const input_gore = document.querySelector("#input-gore")
-const button_load_more = document.querySelector("#button-load-more")
 
 const count = {
-    results: document.querySelector("#count-results"), 
+    results: document.querySelector("#count-results"),
     nsfw: document.querySelector("#count-nsfw"),
     racist: document.querySelector("#count-racist"),
     gore: document.querySelector("#count-gore"),
@@ -23,19 +22,20 @@ const theme_icons = {
 }
 
 let tooltipTimeout;
-let all_results = [];       // all filtered gifs as objects
-let one_load_limit = 40;    // how many gifs to load at a time
-let load_count = 1;         // load_count * one_load_limit = amount of gifs shown
+let all_results = [];
 
-search_gifs("", handle_flags())
-handle_theme()
-get_gif_count()
+document.addEventListener("DOMContentLoaded", () => {
+    handle_theme();
+    get_gif_count();
 
-async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore: false}) {
+    setTimeout(() => {
+        search_gifs("", handle_flags());
+    }, 50);
+});
+
+async function search_gifs(query = "", flags = { nsfw: false, racist: false, gore: false }) {
     gif_container.innerHTML = ""
-    load_count = 1
 
-    // getting gifs
     let data = [];
     try {
         data = JSON.parse(DATA)
@@ -43,53 +43,33 @@ async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore
         console.warn("Could not parse DATA variable.");
     }
 
-    // cleaning query
     query = query.trim().toLocaleLowerCase()
     let query_splitted = query.split(" ")
 
-    // sort alphabetically if no query (zeby muche schowac)
     let filtered_gifs = []
     if (query == "") {
         filtered_gifs = data.sort((a, b) => {
-            if (a.filename < b.filename)
-                return -1
-            else if (a.filename > b.filename)
-                return 1
-            else
-                return 0
+            if (a.filename < b.filename) return -1
+            else if (a.filename > b.filename) return 1
+            else return 0
         })
     }
     else {
-        // score-based searching through gifs
         filtered_gifs = data
             .map(gif => {
                 const tag_string = gif.tags.toLowerCase()
                 const tags = tag_string.split(/\s+/)
-    
                 let score = 0
-    
-                // Individual word matches
                 for (const word of query_splitted) {
-                    if (tags.includes(word)) {
-                        score += 1
-                    }
+                    if (tags.includes(word)) score += 1
                 }
-    
-                // Exact phrase match
-                if (tag_string.includes(query)) {
-                    score += 5
-                }
-    
-                return {
-                    ...gif,
-                    score
-                }
+                if (tag_string.includes(query)) score += 5
+                return { ...gif, score }
             })
             .filter(gif => gif.score > 0)
             .sort((a, b) => b.score - a.score)
     }
 
-    // filtering flags
     filtered_gifs = filtered_gifs
         .filter(gif => !(gif.nsfw == true && flags.nsfw == false))
         .filter(gif => !(gif.racist == true && flags.racist == false))
@@ -100,24 +80,30 @@ async function search_gifs(query = "", flags = {nsfw: false, racist: false, gore
 }
 
 function display_gifs() {
-    let result_count = one_load_limit * (load_count - 1)
+    let result_count = 0
 
-    let length = Math.min(one_load_limit * load_count, all_results.length)
-
-    for (let i = one_load_limit * (load_count - 1); result_count < length; i++) {
+    for (let i = 0; i < all_results.length; i++) {
         let gif = all_results[i]
+
+        let wrapper = document.createElement("div")
+        wrapper.classList.add("gif-wrapper")
+        let delay = i < 800 ? i * 0.01 : 0;
+        wrapper.style.animationDelay = `${delay}s`;
 
         let element = document.createElement("img")
         element.classList.add("gif")
         element.src = `storage/gif/${gif.filename}`
         element.title = gif.tags
-        element.loading = "lazy" // Add native lazy loading for performance
+        element.loading = "lazy"
 
-        // copy link to clipboard on click
+        element.onload = () => {
+            element.classList.add('loaded');
+            wrapper.classList.add('loaded-wrapper');
+        }
+
         element.addEventListener("click", async (e) => {
             try {
                 await navigator.clipboard.writeText(element.src);
-
                 const rect = element.getBoundingClientRect();
                 const left = rect.left + (rect.width / 2) + window.scrollX
                 const top = rect.top + window.scrollY
@@ -125,7 +111,7 @@ function display_gifs() {
                 tooltip.style.top = `${top}px`
                 tooltip.style.left = `${left}px`
                 tooltip.classList.add("show")
-                
+
                 clearTimeout(tooltipTimeout)
                 tooltipTimeout = setTimeout(() => {
                     tooltip.classList.remove("show")
@@ -136,19 +122,11 @@ function display_gifs() {
         })
 
         result_count++
-        gif_container.appendChild(element)
+        wrapper.appendChild(element)
+        gif_container.appendChild(wrapper)
     }
 
     count.results.innerHTML = `Showing ${result_count} of ${all_results.length} results`
-
-    if (result_count == all_results.length) {
-        button_load_more.style.display = "none"
-    }
-    else {
-        button_load_more.style.display = "block"
-    }
-
-    console.log(`dom element count: ${gif_container.children.length}`)
 }
 
 function handle_theme(toggle = false) {
@@ -158,16 +136,12 @@ function handle_theme(toggle = false) {
     if (toggle) {
         if (theme = localStorage.getItem("theme")) {
             theme = theme == "dark" ? "light" : "dark"
-        }
-        else {
+        } else {
             theme = preferred ? "light" : "dark"
         }
-    }
-    else {
+    } else {
         if (theme = localStorage.getItem("theme")) {
-            // Keep existing theme
-        }
-        else {
+        } else {
             theme = preferred ? "dark" : "light"
         }
     }
@@ -177,10 +151,6 @@ function handle_theme(toggle = false) {
     theme_button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="32px" width="32px" viewBox="0 -960 960 960">${theme_icons[theme]}</svg>`
 }
 
-/**
- * Get all flag values
- * @returns Object with boolean flag values
- */
 function handle_flags() {
     return {
         nsfw: handle_flag("nsfw", input_nsfw),
@@ -189,19 +159,12 @@ function handle_flags() {
     }
 }
 
-/**
- * Get flag value from local storage and handle checkbox value 
- * @param {*} name Name of the flag
- * @param {*} checkbox_element DOM checkbox element corresponding to the flag
- * @returns Boolean flag value
- */
 function handle_flag(name, checkbox_element) {
     if (localStorage.getItem(name) == null) {
         localStorage.setItem(name, false)
         checkbox_element.checked = false
         return false
     }
-
     let value = localStorage.getItem(name) == "true" ? true : false
     checkbox_element.checked = value
     return value
@@ -218,12 +181,9 @@ function get_gif_count() {
 
     let nsfw = 0, racist = 0, gore = 0
     data.forEach((gif) => {
-        if (gif.nsfw == true)
-            nsfw++
-        if (gif.racist == true)
-            racist++
-        if (gif.gore == true)
-            gore++
+        if (gif.nsfw == true) nsfw++
+        if (gif.racist == true) racist++
+        if (gif.gore == true) gore++
     })
 
     input_search.placeholder = `Search through ${data.length} gifs...`
@@ -231,55 +191,38 @@ function get_gif_count() {
     count.racist.innerHTML = racist
     count.gore.innerHTML = gore
 
-    return {
-        total: data.length,
-        nsfw: nsfw,
-        racist: racist,
-        gore: gore
-    }
+    return { total: data.length, nsfw: nsfw, racist: racist, gore: gore }
 }
 
 /* Event listeners */
 input_search.addEventListener("input", () => search_gifs(input_search.value, handle_flags()))
 
 input_nsfw.addEventListener("change", (e) => {
-    let checked = e.currentTarget.checked
-    localStorage.setItem("nsfw", checked)
+    localStorage.setItem("nsfw", e.currentTarget.checked)
     search_gifs(input_search.value, handle_flags())
 })
 
 input_racist.addEventListener("change", (e) => {
-    let checked = e.currentTarget.checked
-    localStorage.setItem("racist", checked)
+    localStorage.setItem("racist", e.currentTarget.checked)
     search_gifs(input_search.value, handle_flags())
 })
 
 input_gore.addEventListener("change", (e) => {
-    let checked = e.currentTarget.checked
-    localStorage.setItem("gore", checked)
+    localStorage.setItem("gore", e.currentTarget.checked)
     search_gifs(input_search.value, handle_flags())
 })
 
 theme_button.addEventListener("click", () => handle_theme(true))
 
-button_load_more.addEventListener("click", () => {
-    load_count++
-    display_gifs()
-})
-
-// auto focus to input
 window.addEventListener("keydown", (e) => {
     if (e.key == "Escape") {
         input_search.value = ""
         input_search.focus()
         search_gifs("", handle_flags())
     }
-
-    if (
-        (e.key.charCodeAt(0) >= 48 && e.key.charCodeAt(0) <= 57) ||
+    if ((e.key.charCodeAt(0) >= 48 && e.key.charCodeAt(0) <= 57) ||
         (e.key.charCodeAt(0) >= 65 && e.key.charCodeAt(0) <= 90) ||
-        (e.key.charCodeAt(0) >= 97 && e.key.charCodeAt(0) <= 122)
-    ) {
+        (e.key.charCodeAt(0) >= 97 && e.key.charCodeAt(0) <= 122)) {
         if (document.activeElement !== input_search) {
             input_search.focus()
         }
