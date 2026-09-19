@@ -24,20 +24,6 @@ const theme_icons = {
 let tooltipTimeout;
 let all_results = [];
 
-const lazyLoadObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const img = entry.target.querySelector('img.gif');
-            if (img && !img.src) {
-                img.src = img.dataset.src;
-            }
-            observer.unobserve(entry.target);
-        }
-    });
-}, {
-    rootMargin: "400px"
-});
-
 document.addEventListener("DOMContentLoaded", () => {
     handle_theme();
     get_gif_count();
@@ -48,8 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function search_gifs(query = "", flags = { nsfw: false, racist: false, gore: false }) {
-    lazyLoadObserver.disconnect();
-
     const old_images = gif_container.querySelectorAll("img.gif");
     old_images.forEach(img => {
         img.removeAttribute("src");
@@ -57,7 +41,6 @@ async function search_gifs(query = "", flags = { nsfw: false, racist: false, gor
 
     gif_container.innerHTML = ""
 
-    // getting gifs
     let data = [];
     try {
         data = JSON.parse(DATA)
@@ -65,7 +48,6 @@ async function search_gifs(query = "", flags = { nsfw: false, racist: false, gor
         console.warn("Could not parse DATA variable.");
     }
 
-    // cleaning query
     query = query.trim().toLocaleLowerCase()
     let query_splitted = query.split(" ")
 
@@ -110,14 +92,12 @@ function display_gifs() {
 
         let wrapper = document.createElement("div")
         wrapper.classList.add("gif-wrapper")
-
         let delay = i < 800 ? i * 0.01 : 0;
         wrapper.style.animationDelay = `${delay}s`;
 
         let element = document.createElement("img")
         element.classList.add("gif")
-
-        element.dataset.src = `storage/gif/${gif.filename}`
+        element.src = `storage/gif/${gif.filename}`
         element.title = gif.tags
         element.loading = "lazy"
 
@@ -149,8 +129,6 @@ function display_gifs() {
         result_count++
         wrapper.appendChild(element)
         gif_container.appendChild(wrapper)
-
-        lazyLoadObserver.observe(wrapper);
     }
 
     count.results.innerHTML = `Showing ${result_count} of ${all_results.length} results`
