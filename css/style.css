@@ -48,11 +48,9 @@ body {
     padding: 8px 16px;
     border-radius: 8px;
     z-index: 9999999;
-
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
     background-color: color-mix(in srgb, var(--clr-accent) 80%, transparent);
-
     color: #ffffff;
     font-weight: 500;
     user-select: none;
@@ -108,7 +106,6 @@ body {
 #buttons {
     width: 100%;
     display: flex;
-    gap: 50px;
     justify-content: space-between;
     gap: 0;
 }
@@ -239,11 +236,20 @@ input:checked+.slider:before {
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
-    animation:
-        popIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards,
-        skeleton-loading 1s linear infinite alternate;
-
+    animation: popIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     display: inline-block;
+}
+
+.gif-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    animation: skeleton-loading 1s linear infinite alternate;
+}
+
+.gif-wrapper.loaded-wrapper::before {
+    display: none;
 }
 
 .gif {
@@ -252,19 +258,12 @@ input:checked+.slider:before {
     max-width: 100%;
     object-fit: cover;
     cursor: pointer;
-
     opacity: 0;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.3s ease;
 }
 
 .gif.loaded {
     opacity: 1;
-    animation: popIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.gif-wrapper.loaded-wrapper {
-    background-color: transparent;
-    animation-name: popIn;
 }
 
 .gif-wrapper:hover .gif.loaded,
